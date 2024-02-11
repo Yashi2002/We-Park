@@ -37,40 +37,40 @@ socket.on('entryExitTimeUpdate', (data) => {
 
     appendDataEntry(data);
 });
-
-
-const body = document.querySelector("body"),
-      modeToggle = body.querySelector(".mode-toggle");
-      sidebar = body.querySelector("nav");
-      sidebarToggle = body.querySelector(".sidebar-toggle");
-
-let getMode = localStorage.getItem("mode");
-if(getMode && getMode ==="dark"){
-    body.classList.toggle("dark");
-}
-
-let getStatus = localStorage.getItem("status");
-if(getStatus && getStatus ==="close"){
-    sidebar.classList.toggle("close");
-}
-
-modeToggle.addEventListener("click", () =>{
-    body.classList.toggle("dark");
-    if(body.classList.contains("dark")){
-        localStorage.setItem("mode", "dark");
-    }else{
-        localStorage.setItem("mode", "light");
-    }
+// Listen for the 'vehicleCountUpdate' event
+socket.on('vehicleCountUpdate', (count) => {
+    // Update the content of the span element with the id 'totalVehicles'
+    document.getElementById('totalVehicles').innerText = count;
+    const totalSpace = 50; // Assuming total space is 50, you can change this value accordingly
+    const availableSpace = totalSpace - count;
+    document.getElementById('availableSpace').innerText = availableSpace;
 });
 
-sidebarToggle.addEventListener("click", () => {
-    sidebar.classList.toggle("close");
-    if(sidebar.classList.contains("close")){
-        localStorage.setItem("status", "close");
-    }else{
-        localStorage.setItem("status", "open");
+document.addEventListener("DOMContentLoaded", function() {
+    const body = document.querySelector("body"),
+          modeToggle = document.querySelector(".mode-toggle"),
+          sidebar = document.querySelector("nav"),
+          sidebarToggle = document.querySelector(".sidebar-toggle");
+
+    let getMode = localStorage.getItem("mode");
+    if (getMode === "dark") {
+        body.classList.add("dark");
     }
-})
 
+    let getStatus = localStorage.getItem("status");
+    if (getStatus === "close") {
+        sidebar.classList.add("close");
+    }
 
-  
+    modeToggle.addEventListener("click", () => {
+        body.classList.toggle("dark");
+        const newMode = body.classList.contains("dark") ? "dark" : "light";
+        localStorage.setItem("mode", newMode);
+    });
+
+    sidebarToggle.addEventListener("click", () => {
+        sidebar.classList.toggle("close");
+        const newStatus = sidebar.classList.contains("close") ? "close" : "open";
+        localStorage.setItem("status", newStatus);
+    });
+});

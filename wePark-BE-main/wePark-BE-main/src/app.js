@@ -90,4 +90,63 @@ Vehicle.watch().on('change', () => {
   io.emit("my_message", "Detected");
 });
 
+io.on('connection', async (socket) => {
+  console.log("A user connected:", socket.id);
+
+  try {
+    // Emit the initial count of vehicles to the frontend
+    const count = await getVehicleCount();
+    console.log("Current vehicle count:", count); 
+    socket.emit('vehicleCountUpdate', count);
+  } catch (error) {
+    console.error("Error fetching data from database:", error);
+  }
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    console.log("A user disconnected:", socket.id);
+  });
+});
+
+// Function to get the current count of vehicles
+const getVehicleCount = async () => {
+  try {
+    const count = await Vehicle.countDocuments({ exited: false });
+    return count;
+  } catch (error) {
+    console.error("Error getting vehicle count:", error);
+    return 0;
+  }
+};
+
+// Route to handle vehicle entry
+app.post('/api/vehicle/entry', async (req, res) => {
+  try {
+    // Create a new vehicle entry in the database
+    await Vehicle.create(req.body);
+    // Increment the count of vehicles
+    const count = await getVehicleCount();
+    io.emit('vehicleCountUpdate', count);
+    res.status(200).json({ message: "Vehicle entry recorded successfully" });
+  } catch (error) {
+    console.error("Error recording vehicle entry:", error);
+    res.status(500).json({ error: "Error recording vehicle entry" });
+  }
+});
+
+// Route to handle vehicle exit
+app.post('/api/vehicle/exit', async (req, res) => {
+  try {
+    // Update the exit time for the vehicle in the database
+    await Vehicle.findOneAndUpdate({ _id: req.body.vehicleId }, { exited: true });
+    // Decrement the count of vehicles
+    const count = await getVehicleCount();
+    io.emit('vehicleCountUpdate', count);
+    res.status(200).json({ message: "Vehicle exit recorded successfully" });
+  } catch (error) {
+    console.error("Error recording vehicle exit:", error);
+    res.status(500).json({ error: "Error recording vehicle exit" });
+  }
+});
+
 start();
