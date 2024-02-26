@@ -2,8 +2,12 @@ const express = require("express");
 const app = express();
 const Vehicle = require("./models/Yolo"); // Import the model
 const cors = require('cors');
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.json());
 
 app.use(cors());
+
 const http = require("http");
 const server = http.createServer(app);
 
@@ -41,6 +45,29 @@ const start = async () => {
     console.log(e.message);
   }
 };
+
+// Manually defined username and password
+const validUsername = "admin";
+const validPassword = "password";
+
+// Handle login request
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
+  console.log(req.body);
+  console.log(username);
+  console.log(password);
+
+
+  // Check if the provided credentials match the valid credentials
+  if (username === validUsername && password === validPassword) {
+    res.status(200).json({ message: "Login successful" });
+
+  } else {
+    // console.log("Invalid username or password");
+    res.status(401).json({ message: "Invalid username or password" });
+  }
+
+});
 
 io.on('connection', async (socket) => {
   console.log("A user connected:", socket.id);
@@ -82,7 +109,7 @@ app.get('/api/vehicles', async (req, res) => {
 });
 
 app.get('/', function (req, res) {
-  res.sendFile('C:/Users/Ronish/Desktop/Project Minor/We Park/public/index.html');
+  res.sendFile('C:/Users/Ronish/Desktop/Project Minor/We Park/public/home.html');
 });
 
 Vehicle.watch().on('change', () => {

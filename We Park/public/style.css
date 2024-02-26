@@ -423,4 +423,12 @@ nav.close ~ .dashboard .top{
         width: 100%;
     }
 }
+.activity-data .time-title,
+.activity-data .time-value {
+    color: black; /* Default text color */
+}
+.dark .activity-data .time-title,
+.dark .activity-data .time-value {
+    color: white; /* White text color in dark mode */
+}
 
